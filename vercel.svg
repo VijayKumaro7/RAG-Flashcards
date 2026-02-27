@@ -1,0 +1,106 @@
+"use client";
+
+interface Props {
+  totalKnown: number;
+  total: number;
+  filteredTotal: number;
+  currentIndex: number;
+  reviewing: boolean;
+  categoryName: string;
+  categoryColor: string;
+}
+
+export default function StatsBar({
+  totalKnown, total, filteredTotal,
+  currentIndex, reviewing, categoryName, categoryColor,
+}: Props) {
+  return (
+    <div style={{
+      background: "var(--bg2)",
+      borderBottom: "1px solid var(--border)",
+      padding: "14px 32px",
+      display: "flex", alignItems: "center",
+      justifyContent: "space-between", flexWrap: "wrap", gap: 12,
+    }}>
+      {/* Left — title */}
+      <div>
+        <div style={{
+          fontSize: 13, fontWeight: 700, color: "var(--text)",
+          display: "flex", alignItems: "center", gap: 8,
+        }}>
+          {reviewing ? (
+            <>
+              <span style={{ color: "#F59E0B" }}>📚</span>
+              Reviewing Unknown Cards
+            </>
+          ) : (
+            <>
+              <span style={{
+                width: 8, height: 8, borderRadius: "50%",
+                background: categoryColor,
+                display: "inline-block",
+              }} />
+              {categoryName}
+            </>
+          )}
+        </div>
+        <div style={{
+          fontFamily: "var(--mono)", fontSize: 10,
+          color: "var(--text3)", marginTop: 2,
+        }}>
+          card {currentIndex + 1} of {filteredTotal}
+          {reviewing && ` · ${total - totalKnown} remaining to learn`}
+        </div>
+      </div>
+
+      {/* Right — stat chips */}
+      <div style={{ display: "flex", gap: 10 }}>
+        <Chip
+          label="Known"
+          value={`${totalKnown}`}
+          max={total}
+          color="#10B981"
+        />
+        <Chip
+          label="Remaining"
+          value={`${total - totalKnown}`}
+          max={total}
+          color="#F59E0B"
+        />
+        <Chip
+          label="Progress"
+          value={`${Math.round((totalKnown / total) * 100)}%`}
+          max={100}
+          color="#7C3AED"
+        />
+      </div>
+    </div>
+  );
+}
+
+function Chip({ label, value, color }: {
+  label: string; value: string; max: number; color: string;
+}) {
+  return (
+    <div style={{
+      background: "var(--bg3)",
+      border: "1px solid var(--border)",
+      borderRadius: 10, padding: "6px 14px",
+      textAlign: "center",
+    }}>
+      <div style={{
+        fontFamily: "var(--mono)", fontSize: 14,
+        fontWeight: 700, color,
+      }}>
+        {value}
+      </div>
+      <div style={{
+        fontFamily: "var(--mono)", fontSize: 9,
+        color: "var(--text3)", letterSpacing: 1,
+        textTransform: "uppercase", marginTop: 1,
+      }}>
+        {label}
+      </div>
+    </div>
+  );
+}

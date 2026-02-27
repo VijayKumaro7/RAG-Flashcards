@@ -1,0 +1,392 @@
+export type Flashcard = {
+  id: number;
+  category: string;
+  color: string;
+  q: string;
+  a: string;
+};
+
+export const CATEGORY_COLORS: Record<string, string> = {
+  "RAG Fundamentals": "#7C3AED",
+  "Chunking": "#06B6D4",
+  "Embeddings": "#F59E0B",
+  "Vector Stores": "#10B981",
+  "Retrieval": "#F43F5E",
+  "LLM Generation": "#8B5CF6",
+  "RAGAS Evaluation": "#0EA5E9",
+  "Experiments": "#F97316",
+  "Advanced Features": "#14B8A6",
+  "Architecture & Tools": "#E11D48",
+};
+
+export const flashcards: Flashcard[] = [
+  // RAG Fundamentals
+  {
+    id: 1,
+    category: "RAG Fundamentals",
+    color: "#7C3AED",
+    q: "What is RAG (Retrieval-Augmented Generation)?",
+    a: "A technique that retrieves relevant documents from an external knowledge base at inference time and conditions the LLM on that context — reducing hallucinations and knowledge cutoff limitations. Every answer is grounded in real source documents.",
+  },
+  {
+    id: 2,
+    category: "RAG Fundamentals",
+    color: "#7C3AED",
+    q: "What are the 2 phases of a RAG pipeline?",
+    a: "1) Retrieval Phase: Embed the query → search vector store → fetch top-K chunks.\n\n2) Generation Phase: Feed retrieved chunks + question to LLM → generate grounded answer.",
+  },
+  {
+    id: 3,
+    category: "RAG Fundamentals",
+    color: "#7C3AED",
+    q: "Why does RAG reduce hallucinations?",
+    a: "The LLM is instructed to answer ONLY using the provided context. It no longer relies on parametric memory (weights) — every claim must be supported by retrieved documents, making answers traceable and verifiable.",
+  },
+  {
+    id: 4,
+    category: "RAG Fundamentals",
+    color: "#7C3AED",
+    q: "What is the difference between parametric and non-parametric knowledge?",
+    a: "Parametric knowledge is baked into model weights during training (static, can hallucinate).\n\nNon-parametric knowledge is retrieved at runtime from external sources (dynamic, traceable).\n\nRAG adds non-parametric knowledge to any LLM.",
+  },
+  {
+    id: 5,
+    category: "RAG Fundamentals",
+    color: "#7C3AED",
+    q: "Name 3 real-world use cases for RAG.",
+    a: "1) Enterprise Q&A over internal documents\n2) Legal / medical document analysis\n3) Customer support automation\n4) Financial report analysis\n5) Research literature review assistant",
+  },
+
+  // Chunking
+  {
+    id: 6,
+    category: "Chunking",
+    color: "#06B6D4",
+    q: "What is chunking and why is it needed?",
+    a: "Chunking splits large documents into smaller pieces that fit within embedding model token limits (typically 512 tokens). Smaller, focused chunks improve retrieval precision — the right chunk, not the whole document, is returned.",
+  },
+  {
+    id: 7,
+    category: "Chunking",
+    color: "#06B6D4",
+    q: "What is Fixed-Size chunking?",
+    a: "Splits text every N characters regardless of content boundaries. Simple and predictable, but may break sentences mid-thought. Best for uniform content like logs or code.\n\nImplemented via LangChain's CharacterTextSplitter.",
+  },
+  {
+    id: 8,
+    category: "Chunking",
+    color: "#06B6D4",
+    q: "What is Recursive Character chunking?",
+    a: "Tries to split on natural boundaries in order:\nparagraph breaks → line breaks → sentences → words → characters.\n\nPreserves semantic units better than fixed splitting. LangChain's RecursiveCharacterTextSplitter is the standard choice.",
+  },
+  {
+    id: 9,
+    category: "Chunking",
+    color: "#06B6D4",
+    q: "What is chunk overlap and why does it matter?",
+    a: "Chunk overlap shares N characters between consecutive chunks. Without overlap, a sentence split across two chunks loses context at the boundary.\n\nTypical value: 10–20% of chunk_size (e.g., overlap=50 for size=512).",
+  },
+  {
+    id: 10,
+    category: "Chunking",
+    color: "#06B6D4",
+    q: "What chunk_size gave the best RAGAS score in this project?",
+    a: "chunk_size=512 with chunk_overlap=50 achieved the best balanced mean RAGAS score of 0.853 — outperforming both:\n• 256 (too fragmented, loses context)\n• 1024 (too diluted with irrelevant content)",
+  },
+
+  // Embeddings
+  {
+    id: 11,
+    category: "Embeddings",
+    color: "#F59E0B",
+    q: "What are vector embeddings?",
+    a: "Dense numerical vectors that encode the semantic meaning of text. Semantically similar texts produce vectors close together in high-dimensional space.\n\nEmbeddings enable similarity search — the core of retrieval in RAG.",
+  },
+  {
+    id: 12,
+    category: "Embeddings",
+    color: "#F59E0B",
+    q: "What is all-MiniLM-L6-v2 and why use it?",
+    a: "A free, lightweight HuggingFace sentence-transformer model (384 dimensions). Fast, runs on CPU, achieves ~95% of OpenAI ada-002 quality on most tasks.\n\nIdeal for cost-free local RAG pipelines.",
+  },
+  {
+    id: 13,
+    category: "Embeddings",
+    color: "#F59E0B",
+    q: "What is OpenAI text-embedding-ada-002?",
+    a: "OpenAI's embedding model (1536 dimensions). High quality but paid per token.\n\nIn this project it scored mean RAGAS 0.870 vs 0.853 for HuggingFace MiniLM — a small gain for extra cost.",
+  },
+  {
+    id: 14,
+    category: "Embeddings",
+    color: "#F59E0B",
+    q: "What is cosine similarity and how is it used in retrieval?",
+    a: "Cosine similarity measures the angle between two vectors:\n• 0 = orthogonal (unrelated)\n• 1 = identical direction (same meaning)\n\nIn RAG, the query vector is compared against all document vectors to find the top-K most relevant chunks.",
+  },
+  {
+    id: 15,
+    category: "Embeddings",
+    color: "#F59E0B",
+    q: "What does normalize_embeddings=True do?",
+    a: "It L2-normalizes each vector to unit length.\n\nThis makes cosine similarity equivalent to dot product (faster), ensures consistent scale across different inputs, and improves retrieval quality for most sentence transformer models.",
+  },
+
+  // Vector Stores
+  {
+    id: 16,
+    category: "Vector Stores",
+    color: "#10B981",
+    q: "What is ChromaDB?",
+    a: "An open-source, Python-native vector database with persistent storage (SQLite-backed), metadata filtering, and LangChain integration.\n\nRuns locally, no external service needed. Best for development and medium-scale corpora.",
+  },
+  {
+    id: 17,
+    category: "Vector Stores",
+    color: "#10B981",
+    q: "What is FAISS?",
+    a: "Facebook AI Similarity Search — a high-performance library for dense vector search.\n\nSupports exact (IndexFlatL2) and approximate (IndexIVFFlat, HNSW) search. Can handle billions of vectors. No built-in metadata filtering.",
+  },
+  {
+    id: 18,
+    category: "Vector Stores",
+    color: "#10B981",
+    q: "What is the difference between similarity search and MMR?",
+    a: "Similarity search: ranks purely by cosine distance (max relevance, can be redundant).\n\nMMR (Maximal Marginal Relevance): balances relevance + diversity — after each pick, it penalizes candidates similar to already-selected chunks.",
+  },
+  {
+    id: 19,
+    category: "Vector Stores",
+    color: "#10B981",
+    q: "What is the MMR formula?",
+    a: "MMR(dᵢ) = λ × sim(query, dᵢ) − (1−λ) × max(sim(dᵢ, dⱼ))\n\n• λ=1 → pure relevance (similarity search)\n• λ=0 → pure diversity\n• λ=0.5 → balanced (default in this project)",
+  },
+  {
+    id: 20,
+    category: "Vector Stores",
+    color: "#10B981",
+    q: "When would you choose FAISS over ChromaDB?",
+    a: "Choose FAISS when you need:\n• Maximum speed at scale\n• Very large corpora (100M+ vectors)\n• GPU acceleration\n\nChoose ChromaDB when you need:\n• Metadata filtering\n• Persistence without extra code\n• Easier LangChain integration",
+  },
+
+  // Retrieval
+  {
+    id: 21,
+    category: "Retrieval",
+    color: "#F43F5E",
+    q: "What is top-K retrieval?",
+    a: "The number of document chunks returned for a given query.\n\n• Low K → high precision, low recall\n• High K → high recall, lower precision\n\ntop_k=4 was found optimal in this project — balances context richness vs noise.",
+  },
+  {
+    id: 22,
+    category: "Retrieval",
+    color: "#F43F5E",
+    q: "What is CrossEncoder re-ranking?",
+    a: "A two-stage retrieval technique:\n1. Fetch K×2 candidates with fast bi-encoder similarity\n2. Re-rank them using a CrossEncoder that reads query + document jointly\n3. Return top-K after re-ranking\n\nMore accurate but slower than bi-encoder alone.",
+  },
+  {
+    id: 23,
+    category: "Retrieval",
+    color: "#F43F5E",
+    q: "Why are CrossEncoders more accurate than bi-encoders?",
+    a: "Bi-encoders encode query and document independently (fast, scalable, approximate).\n\nCrossEncoders use cross-attention to see both simultaneously — capturing interaction between query tokens and document tokens for true relevance scoring.",
+  },
+  {
+    id: 24,
+    category: "Retrieval",
+    color: "#F43F5E",
+    q: "What is query expansion?",
+    a: "Using an LLM to rewrite the user's original query into a more specific, retrieval-friendly form before embedding.\n\nBridges the vocabulary gap between how users ask questions and how documents are written. Improves recall for short or vague queries.",
+  },
+  {
+    id: 25,
+    category: "Retrieval",
+    color: "#F43F5E",
+    q: "What is the vocabulary gap problem in RAG?",
+    a: "Users ask questions differently than documents are written.\n\nE.g., user asks 'ML training tips' but doc says 'best practices for gradient descent optimization'.\n\nQuery expansion rewrites the query to match document vocabulary, improving embedding similarity.",
+  },
+
+  // LLM Generation
+  {
+    id: 26,
+    category: "LLM Generation",
+    color: "#8B5CF6",
+    q: "What temperature setting is best for RAG and why?",
+    a: "temperature=0 is best for RAG. It makes output deterministic (always the highest-probability token).\n\nHigher temperatures introduce creative variation but reduce faithfulness — the LLM may add facts not present in the retrieved context.",
+  },
+  {
+    id: 27,
+    category: "LLM Generation",
+    color: "#8B5CF6",
+    q: "What is a RAG prompt template?",
+    a: "A structured prompt with:\n1. System instructions: 'Answer ONLY using the provided context'\n2. Context: formatted retrieved chunks with source labels\n3. Human turn: the user's question\n\nForces grounded, traceable answers from the LLM.",
+  },
+  {
+    id: 28,
+    category: "LLM Generation",
+    color: "#8B5CF6",
+    q: "What is LangChain and what role does it play here?",
+    a: "LangChain is an orchestration framework for LLM applications.\n\nIn this project it provides: document loaders, text splitters, embedding wrappers, vector store integrations, prompt templates, and LLM chains — all with a unified API.",
+  },
+  {
+    id: 29,
+    category: "LLM Generation",
+    color: "#8B5CF6",
+    q: "Name the 3 LLM providers supported in this project.",
+    a: "1) OpenAI (GPT-3.5-turbo, GPT-4) — paid, best quality\n2) Ollama (Mistral, Llama) — free, runs locally\n3) Google Gemini (gemini-pro) — paid, strong alternative\n\nAll configured via config.yaml — no code changes needed to switch.",
+  },
+  {
+    id: 30,
+    category: "LLM Generation",
+    color: "#8B5CF6",
+    q: "What is the LangChain LCEL chain pattern?",
+    a: "LCEL (LangChain Expression Language) chains components with the | operator:\n\nchain = prompt | llm | StrOutputParser()\n\nThis pipes: prompt → LLM → string parser. Clean, readable, and supports async/streaming out of the box.",
+  },
+
+  // RAGAS Evaluation
+  {
+    id: 31,
+    category: "RAGAS Evaluation",
+    color: "#0EA5E9",
+    q: "What is RAGAS?",
+    a: "Retrieval Augmented Generation Assessment — an open-source framework for evaluating RAG pipelines.\n\nUses an LLM as a judge to score responses. Reference-free (no human labels needed for most metrics). Outputs scores from 0 to 1.",
+  },
+  {
+    id: 32,
+    category: "RAGAS Evaluation",
+    color: "#0EA5E9",
+    q: "What is Faithfulness in RAGAS?",
+    a: "Measures if all claims in the answer are supported by the retrieved context.\n\n1. LLM decomposes answer into atomic claims\n2. Each claim is verified against context\n\nScore = supported_claims / total_claims\nBelow 0.5 → potential hallucination ⚠️",
+  },
+  {
+    id: 33,
+    category: "RAGAS Evaluation",
+    color: "#0EA5E9",
+    q: "What is Answer Relevancy in RAGAS?",
+    a: "Measures how directly the answer addresses the question.\n\nLLM generates multiple questions from the answer, then cosine similarity between those and the original question is measured.\n\nLow score → answer drifted off-topic or was too vague.",
+  },
+  {
+    id: 34,
+    category: "RAGAS Evaluation",
+    color: "#0EA5E9",
+    q: "What is Context Precision in RAGAS?",
+    a: "Measures the signal-to-noise ratio in retrieved context — what fraction of retrieved chunks are actually relevant to answer the question.\n\nHigh precision = clean, focused retrieval.\nLow precision = irrelevant chunks diluting the context window.",
+  },
+  {
+    id: 35,
+    category: "RAGAS Evaluation",
+    color: "#0EA5E9",
+    q: "What is Context Recall in RAGAS?",
+    a: "Measures whether the retrieved context contains ALL information needed to answer correctly, compared to ground truth.\n\nLow recall = retriever missed important documents.\n\nRequires ground_truth answers in the evaluation dataset.",
+  },
+  {
+    id: 36,
+    category: "RAGAS Evaluation",
+    color: "#0EA5E9",
+    q: "What RAGAS scores did this project achieve?",
+    a: "Best config (chunk_size=512, top_k=4, similarity retrieval):\n\n• Faithfulness:      0.91 ✅\n• Answer Relevancy:  0.88 ✅\n• Context Precision: 0.83 ✅\n• Context Recall:    0.79 ✅\n• Mean Score:        0.853 (+11% vs baseline)",
+  },
+
+  // Experiments
+  {
+    id: 37,
+    category: "Experiments",
+    color: "#F97316",
+    q: "What 5 hyperparameter experiments were run?",
+    a: "1) chunk_size: [256, 512, 1024]\n2) chunk_overlap: [0, 50, 100]\n3) top_k_retrieval: [2, 4, 6]\n4) retrieval_method: [similarity, MMR]\n5) embedding_model: [huggingface, openai]\n\nAll tracked with MLflow, results saved as JSON.",
+  },
+  {
+    id: 38,
+    category: "Experiments",
+    color: "#F97316",
+    q: "What is MLflow and how is it used here?",
+    a: "MLflow is an open-source ML experiment tracking platform.\n\nIn this project it logs:\n• Parameters: chunk_size, top_k, retrieval method\n• Metrics: all 4 RAGAS scores per run\n\nEnables visual comparison of all experiments via the MLflow UI.",
+  },
+  {
+    id: 39,
+    category: "Experiments",
+    color: "#F97316",
+    q: "What did the top_k experiment reveal?",
+    a: "top_k=2: high precision (0.86) but low recall (0.68) — misses information\ntop_k=4: best balance — precision 0.83, recall 0.79 ⭐\ntop_k=6: high recall (0.84) but lower precision (0.79) — more noise in context",
+  },
+  {
+    id: 40,
+    category: "Experiments",
+    color: "#F97316",
+    q: "What did the retrieval_method experiment reveal?",
+    a: "Similarity: better precision (0.83), slightly lower recall (0.79) — best for focused corpora.\n\nMMR: slightly lower precision (0.81) but better recall (0.85) due to diversity — best when documents have overlapping content.",
+  },
+  {
+    id: 41,
+    category: "Experiments",
+    color: "#F97316",
+    q: "What is the purpose of a golden QA dataset?",
+    a: "A ground truth dataset of (question, answer) pairs created from your documents.\n\nUsed to measure Context Recall (requires ground_truth) and validate evaluation quality.\n\nThis project has 20 pairs covering core RAG concepts.",
+  },
+
+  // Advanced Features
+  {
+    id: 42,
+    category: "Advanced Features",
+    color: "#14B8A6",
+    q: "What is hallucination detection in this project?",
+    a: "After generation, the faithfulness score is computed by RAGAS.\n\nIf it falls below the configured threshold (default: 0.5), the response is flagged as a potential hallucination.\n\nThe Streamlit UI shows a warning banner for flagged responses. 🚨",
+  },
+  {
+    id: 43,
+    category: "Advanced Features",
+    color: "#14B8A6",
+    q: "What is HyDE (Hypothetical Document Embeddings)?",
+    a: "Instead of embedding the raw query, use an LLM to generate a hypothetical answer first, then embed that.\n\nThe hypothesis is closer to real answer documents in embedding space than a short question — improves retrieval for complex queries.",
+  },
+  {
+    id: 44,
+    category: "Advanced Features",
+    color: "#14B8A6",
+    q: "What is Parent-Child chunking?",
+    a: "Index small child chunks for precise retrieval, but return their larger parent chunk as context to the LLM.\n\nGets the best of both worlds:\n• Precise retrieval (small chunks match queries better)\n• Rich context (large chunks give LLM more info)",
+  },
+  {
+    id: 45,
+    category: "Advanced Features",
+    color: "#14B8A6",
+    q: "What is the cross-encoder model used in this project?",
+    a: "cross-encoder/ms-marco-MiniLM-L-6-v2 — a lightweight CrossEncoder trained on MS MARCO passage ranking.\n\nFast enough for real-time re-ranking. Scores query-document pairs with a single forward pass through BERT-like cross-attention.",
+  },
+
+  // Architecture & Tools
+  {
+    id: 46,
+    category: "Architecture & Tools",
+    color: "#E11D48",
+    q: "What are the 4 tabs in the Streamlit dashboard?",
+    a: "1) 💬 Chat — conversational Q&A with source attribution\n2) 📊 Metrics — session stats and RAGAS scores\n3) 🧪 Experiments — Plotly bar + radar comparison charts\n4) 📄 Sources — inspect retrieved chunks with metadata",
+  },
+  {
+    id: 47,
+    category: "Architecture & Tools",
+    color: "#E11D48",
+    q: "What design pattern does RAGPipeline use?",
+    a: "It uses a dataclass configuration (RAGConfig) + a class with an initialize() method.\n\nThis separates config from logic, enables easy override for experiments, and supports caching in Streamlit via @st.cache_resource.",
+  },
+  {
+    id: 48,
+    category: "Architecture & Tools",
+    color: "#E11D48",
+    q: "Why is config.yaml used instead of hardcoding values?",
+    a: "Centralizes all hyperparameters (chunk_size, top_k, model names, thresholds) in one place.\n\nEnables switching models or strategies without code changes. Supports overrides for experiment runner. Industry-standard MLOps practice.",
+  },
+  {
+    id: 49,
+    category: "Architecture & Tools",
+    color: "#E11D48",
+    q: "What does python-dotenv do and why is it used?",
+    a: "Loads environment variables from a .env file into os.environ.\n\nKeeps API keys (OPENAI_API_KEY, GOOGLE_API_KEY) out of source code and .gitignore'd from the repo.\n\nNever hardcode secrets — always use dotenv or secret managers.",
+  },
+  {
+    id: 50,
+    category: "Architecture & Tools",
+    color: "#E11D48",
+    q: "What is the RAGResponse dataclass?",
+    a: "A structured output object returned by pipeline.query() containing:\n• question & expanded_question\n• answer\n• context & source_documents\n• latency_ms\n• metadata dict\n• hallucination_flagged bool\n\nClean API contract between pipeline and UI.",
+  },
+];

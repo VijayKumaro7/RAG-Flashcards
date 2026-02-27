@@ -1,0 +1,204 @@
+"use client";
+import { useState, useEffect, useCallback } from "react";
+import { flashcards, CATEGORY_COLORS, type Flashcard } from "@/data/flashcards";
+import FlashCard from "@/components/FlashCard";
+import CategorySidebar from "@/components/CategorySidebar";
+import StatsBar from "@/components/StatsBar";
+
+export default function Home() {
+  const [activeCategory, setActiveCategory] = useState("All");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [knownIds, setKnownIds] = useState<Set<number>>(new Set());
+  const [reviewing, setReviewing] = useState(false);
+  const [cardKey, setCardKey] = useState(0);
+
+  const filtered: Flashcard[] = reviewing
+    ? flashcards.filter(c => !knownIds.has(c.id))
+    : activeCategory === "All"
+      ? flashcards
+      : flashcards.filter(c => c.category === activeCategory);
+
+  const card = filtered[currentIndex] ?? null;
+  const safeIndex = Math.min(currentIndex, Math.max(0, filtered.length - 1));
+
+  useEffect(() => {
+    setCurrentIndex(0);
+    setCardKey(k => k + 1);
+  }, [activeCategory, reviewing]);
+
+  const goNext = useCallback(() => {
+    if (currentIndex < filtered.length - 1) {
+      setCurrentIndex(i => i + 1);
+      setCardKey(k => k + 1);
+    }
+  }, [currentIndex, filtered.length]);
+
+  const goPrev = useCallback(() => {
+    if (currentIndex > 0) {
+      setCurrentIndex(i => i - 1);
+      setCardKey(k => k + 1);
+    }
+  }, [currentIndex]);
+
+  const markKnown = useCallback(() => {
+    if (!card) return;
+    setKnownIds(prev => new Set([...prev, card.id]));
+    if (currentIndex < filtered.length - 1) {
+      setCurrentIndex(i => i + 1);
+    }
+    setCardKey(k => k + 1);
+  }, [card, currentIndex, filtered.length]);
+
+  const reset = () => {
+    setKnownIds(new Set());
+    setCurrentIndex(0);
+    setReviewing(false);
+    setCardKey(k => k + 1);
+  };
+
+  const changeCategory = (cat: string) => {
+    setActiveCategory(cat);
+    setReviewing(false);
+  };
+
+  const toggleReview = () => {
+    setReviewing(r => !r);
+    setCurrentIndex(0);
+    setCardKey(k => k + 1);
+  };
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement) return;
+      if (e.key === "ArrowRight" || e.key === "l") goNext();
+      if (e.key === "ArrowLeft"  || e.key === "h") goPrev();
+      if (e.key === "g" || e.key === "G") markKnown();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [goNext, goPrev, markKnown]);
+
+  const categoryColor =
+    activeCategory === "All" ? "#7C3AED" : (CATEGORY_COLORS[activeCategory] ?? "#7C3AED");
+
+  return (
+    <div style={{ display: "flex", minHeight: "100vh", position: "relative", zIndex: 1 }}>
+      <CategorySidebar
+        activeCategory={activeCategory}
+        knownIds={knownIds}
+        onChange={changeCategory}
+        reviewing={reviewing}
+        onToggleReview={toggleReview}
+        onReset={reset}
+      />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+        <StatsBar
+          totalKnown={knownIds.size}
+          total={flashcards.length}
+          filteredTotal={filtered.length}
+          currentIndex={safeIndex}
+          reviewing={reviewing}
+          categoryName={activeCategory}
+          categoryColor={categoryColor}
+        />
+        <div style={{
+          flex: 1, display: "flex", alignItems: "center",
+          justifyContent: "center", padding: "40px 32px",
+        }}>
+          {filtered.length === 0 ? (
+            <EmptyState knownIds={knownIds} onReset={reset} />
+          ) : card ? (
+            <FlashCard
+              key={cardKey}
+              card={card}
+              cardNumber={safeIndex + 1}
+              total={filtered.length}
+              isKnown={knownIds.has(card.id)}
+              onNext={goNext}
+              onPrev={goPrev}
+              onMarkKnown={markKnown}
+              canGoNext={currentIndex < filtered.length - 1}
+              canGoPrev={currentIndex > 0}
+            />
+          ) : null}
+        </div>
+        <CategoryGrid knownIds={knownIds} onSelect={changeCategory} active={activeCategory} />
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({ knownIds, onReset }: { knownIds: Set<number>; onReset: () => void }) {
+  return (
+    <div style={{ textAlign: "center", maxWidth: 400 }}>
+      <div style={{ fontSize: 56, marginBottom: 16 }}>🎉</div>
+      <div style={{ fontSize: 22, fontWeight: 800, marginBottom: 8 }}>All {knownIds.size} cards mastered!</div>
+      <div style={{ color: "var(--text2)", fontSize: 14, marginBottom: 24, lineHeight: 1.6 }}>
+        You&apos;ve marked every card as known. Ready to start fresh?
+      </div>
+      <button onClick={onReset} style={{
+        background: "rgba(124,58,237,0.15)",
+        border: "1px solid rgba(124,58,237,0.4)",
+        borderRadius: 12, padding: "12px 28px",
+        fontSize: 14, fontWeight: 700, color: "#7C3AED",
+        cursor: "pointer", fontFamily: "var(--sans)",
+      }}>
+        ↺ Reset & Start Over
+      </button>
+    </div>
+  );
+}
+
+function CategoryGrid({ knownIds, onSelect, active }: {
+  knownIds: Set<number>; onSelect: (cat: string) => void; active: string;
+}) {
+  return (
+    <div style={{
+      padding: "20px 32px 28px",
+      borderTop: "1px solid var(--border)",
+      background: "var(--bg2)",
+    }}>
+      <div style={{
+        fontFamily: "var(--mono)", fontSize: 9,
+        color: "var(--text3)", letterSpacing: 2,
+        textTransform: "uppercase", marginBottom: 14,
+      }}>All Topics</div>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))",
+        gap: 8,
+      }}>
+        {Object.entries(CATEGORY_COLORS).map(([cat, col]) => {
+          const catCards = flashcards.filter(c => c.category === cat);
+          const known = catCards.filter(c => knownIds.has(c.id)).length;
+          const pct = Math.round((known / catCards.length) * 100);
+          const isActive = active === cat;
+          return (
+            <button key={cat} onClick={() => onSelect(cat)} className="cat-pill" style={{
+              background: isActive ? `${col}14` : "var(--bg3)",
+              border: `1px solid ${isActive ? col + "55" : "rgba(255,255,255,0.06)"}`,
+              borderRadius: 10, padding: "10px 12px",
+              textAlign: "left", cursor: "pointer",
+            }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ fontSize: 11, fontWeight: 600, color: isActive ? col : "var(--text2)" }}>
+                  {cat}
+                </span>
+                <span style={{ fontFamily: "var(--mono)", fontSize: 9, color: "var(--text3)" }}>
+                  {known}/{catCards.length}
+                </span>
+              </div>
+              <div style={{ height: 3, background: "rgba(255,255,255,0.05)", borderRadius: 2, overflow: "hidden" }}>
+                <div style={{
+                  height: "100%", borderRadius: 2,
+                  background: pct === 100 ? "#10B981" : col,
+                  width: `${pct}%`, transition: "width 0.4s ease",
+                }} />
+              </div>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
