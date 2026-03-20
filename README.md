@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🔍 RAG Pipeline Flashcards
 
-## Getting Started
+> Next.js 14 flashcard app with 50 cards across 10 RAG topics — chunking, embeddings, vector stores, RAGAS evaluation & more. Features 3D flip animation, keyboard shortcuts, category filtering, per-topic progress tracking, and review mode.
 
-First, run the development server:
+![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)
+![Tailwind](https://img.shields.io/badge/Tailwind-3-38bdf8?style=flat-square&logo=tailwindcss)
+![Cards](https://img.shields.io/badge/Flashcards-50-7C3AED?style=flat-square)
+![Topics](https://img.shields.io/badge/Topics-10-06B6D4?style=flat-square)
+
+---
+
+## 📸 Screenshots
+
+### Main View
+![Main View](public/screenshots/01-main-view.png)
+
+### Card Flipped — Answer Side
+![Card Flipped](public/screenshots/02-card-flipped.png)
+
+### Category Filter — Embeddings
+![Category Filter](public/screenshots/03-embeddings-category.png)
+
+### Progress Tracking — 12 Cards Known
+![Progress Tracking](public/screenshots/04-progress-tracking.png)
+
+### RAGAS Evaluation — Answer Side
+![RAGAS Answer](public/screenshots/05-ragas-flipped.png)
+
+### Review Mode — Unknown Cards Only
+![Review Mode](public/screenshots/06-review-mode.png)
+
+---
+
+## ✨ Features
+
+- **3D flip animation** — smooth CSS `rotateY` on click to reveal answers
+- **Keyboard shortcuts** — `←` `→` to navigate, `Space` to flip, `G` to mark as known
+- **10 topic categories** — filter cards by specific RAG topic
+- **Per-topic progress bars** — track mastery across sidebar and footer grid
+- **Review mode** — focus only on cards you haven't mastered yet
+- **Session stats** — live Known / Remaining / Progress% chips in the header
+- **🎉 Completion screen** — celebrate when all cards are mastered
+- **Dark theme** — deep navy palette with color-coded category accents
+
+---
+
+## 📚 Topics Covered
+
+| # | Topic | Cards |
+|---|-------|-------|
+| 1 | RAG Fundamentals | 5 |
+| 2 | Chunking | 5 |
+| 3 | Embeddings | 5 |
+| 4 | Vector Stores | 5 |
+| 5 | Retrieval | 5 |
+| 6 | LLM Generation | 5 |
+| 7 | RAGAS Evaluation | 6 |
+| 8 | Experiments | 5 |
+| 9 | Advanced Features | 4 |
+| 10 | Architecture & Tools | 5 |
+
+---
+
+## 🚀 Getting Started
 
 ```bash
+# Clone
+git clone https://github.com/VijayKumaro7/rag-flashcards.git
+cd rag-flashcards
+
+# Install
+npm install
+
+# Run dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# → http://localhost:3000
+
+# Build for production
+npm run build
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🗂️ Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+rag-flashcards/
+├── app/
+│   ├── page.tsx              # Main page — all state logic
+│   ├── layout.tsx            # Root layout + metadata
+│   └── globals.css           # Dark theme + 3D flip CSS
+├── components/
+│   ├── FlashCard.tsx         # 3D flip card with progress bar
+│   ├── CategorySidebar.tsx   # Sticky sidebar with per-topic progress
+│   └── StatsBar.tsx          # Top bar with Known/Remaining/Progress chips
+├── data/
+│   └── flashcards.ts         # All 50 cards typed with TypeScript
+└── public/
+    └── screenshots/          # UI screenshots for README
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## ⌨️ Keyboard Shortcuts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Key | Action |
+|-----|--------|
+| `Space` | Flip card |
+| `←` or `H` | Previous card |
+| `→` or `L` | Next card |
+| `G` | Mark as "Got it" |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 🛠️ Tech Stack
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Next.js 14** — App Router, static export
+- **TypeScript** — Fully typed flashcard data and components
+- **Tailwind CSS** — Utility-first styling
+- **CSS 3D Transforms** — `perspective` + `rotateY` for card flip
+- **React Hooks** — `useState`, `useEffect`, `useCallback` for state management
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📄 License
+
+MIT — free to use, fork, and extend.
+
+---
+
+Built by [Vijay Kumar](https://github.com/VijayKumaro7) · Part of the RAG Pipeline portfolio project
